@@ -1,36 +1,161 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 3PL Warehouse Management System
 
-## Getting Started
+Een enterprise-grade Warehouse Management System (WMS) voor Third-Party Logistics (3PL) providers, gebouwd met Next.js 16, React 19, Supabase en Tailwind CSS.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Dashboard** - Real-time overzicht van warehouse operaties
+- **Inbound Management** - ASN ontvangst, kwaliteitscontrole, putaway
+- **Outbound Management** - Order picking, packing, shipping
+- **Inventory Management** - Voorraad tracking, cycle counts, locatiebeheer
+- **Wave Planning** - Batch picking en order groupering
+- **Producten** - SKU beheer met lot/serial tracking
+- **Klanten** - Multi-tenant klantbeheer
+- **Facturatie** - Contracten en facturering
+- **Rapportage** - Analytics en KPI dashboards
+- **Scanner** - Barcode scanning voor warehouse operaties
+- **AI Assistent** - Intelligente warehouse assistent (optioneel)
+
+## Tech Stack
+
+- **Framework**: Next.js 16 (App Router, Turbopack)
+- **Frontend**: React 19, Tailwind CSS 4, Radix UI
+- **Backend**: Supabase (PostgreSQL, Auth, Realtime)
+- **State**: Zustand, TanStack Query
+- **Forms**: React Hook Form + Zod
+- **Charts**: Recharts
+- **Animations**: Framer Motion
+
+## Vereisten
+
+- Node.js 20+
+- npm of pnpm
+- Supabase account (gratis tier voldoende voor development)
+
+## Installatie
+
+1. **Clone de repository**
+   ```bash
+   git clone <repository-url>
+   cd project
+   ```
+
+2. **Installeer dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Configureer environment variables**
+   ```bash
+   cp .env.example .env.local
+   ```
+
+   Vul de volgende variabelen in `.env.local`:
+   - `NEXT_PUBLIC_SUPABASE_URL` - Je Supabase project URL
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Je Supabase anon key
+   - `SUPABASE_SERVICE_ROLE_KEY` - Je Supabase service role key
+
+4. **Database setup**
+
+   Voer de migratie uit in je Supabase SQL Editor:
+   ```bash
+   # Kopieer inhoud van supabase/migrations/001_initial_schema.sql
+   # Plak en voer uit in Supabase SQL Editor
+   ```
+
+   Voer daarna de seed data uit:
+   ```bash
+   # Kopieer inhoud van supabase/seed/001_demo_data.sql
+   # Plak en voer uit in Supabase SQL Editor
+   ```
+
+5. **Start de development server**
+   ```bash
+   npm run dev
+   ```
+
+6. **Open de applicatie**
+
+   Ga naar [http://localhost:3000](http://localhost:3000)
+
+## Scripts
+
+| Commando | Beschrijving |
+|----------|--------------|
+| `npm run dev` | Start development server |
+| `npm run build` | Build voor productie |
+| `npm run start` | Start productie server |
+| `npm run lint` | Voer ESLint uit |
+
+## Project Structuur
+
+```
+src/
+├── app/                    # Next.js App Router pagina's
+│   ├── (auth)/            # Authenticatie pagina's
+│   ├── (dashboard)/       # Dashboard en features
+│   └── api/               # API routes
+├── components/            # React componenten
+│   ├── layout/           # Layout componenten
+│   └── ui/               # UI componenten (shadcn/ui)
+├── lib/                   # Utilities en configuratie
+│   ├── supabase/         # Supabase client
+│   ├── hooks/            # Custom React hooks
+│   └── utils/            # Helper functies
+└── types/                # TypeScript type definities
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Database Schema
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+De applicatie gebruikt de volgende hoofdtabellen:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `tenants` - Multi-tenant organisaties
+- `users` - Gebruikers per tenant
+- `warehouses` - Warehouse configuratie
+- `locations` - Opslaglocaties (aisle/rack/level)
+- `products` - Product master data
+- `customers` - Klanten per tenant
+- `inventory` - Voorraadposities
+- `inbound_orders` - Inkomende ASN's
+- `outbound_orders` - Uitgaande orders
+- `pick_tasks` - Pick opdrachten
+- `waves` - Wave planning
 
-## Learn More
+## Demo Gebruikers
 
-To learn more about Next.js, take a look at the following resources:
+Na het uitvoeren van de seed data zijn de volgende gebruikers beschikbaar:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Rol | Email | Beschrijving |
+|-----|-------|--------------|
+| Admin | admin@demo.com | Volledige toegang |
+| Manager | manager@demo.com | Warehouse management |
+| Operator | operator@demo.com | Dagelijkse operaties |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Environment Variables
 
-## Deploy on Vercel
+Zie `.env.example` voor alle beschikbare configuratie opties:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Supabase**: Database en authenticatie
+- **AI**: Optionele Anthropic API voor AI features
+- **Feature Flags**: Schakel features in/uit
+- **Localization**: Taal en regio instellingen
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Deployment
+
+### Vercel (Aanbevolen)
+
+1. Push naar GitHub/GitLab
+2. Importeer in Vercel
+3. Configureer environment variables
+4. Deploy
+
+### Docker
+
+```bash
+docker build -t 3pl-wms .
+docker run -p 3000:3000 3pl-wms
+```
+
+## Licentie
+
+MIT
