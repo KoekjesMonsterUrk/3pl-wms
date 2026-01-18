@@ -66,9 +66,7 @@ export async function updateSession(request: NextRequest) {
 
   // Protected routes check
   const isAuthPage = request.nextUrl.pathname.startsWith('/login');
-  const isPublicPage =
-    request.nextUrl.pathname === '/' ||
-    request.nextUrl.pathname.startsWith('/api/public');
+  const isPublicPage = request.nextUrl.pathname.startsWith('/api/public');
 
   // If user is not authenticated and trying to access protected route
   if (

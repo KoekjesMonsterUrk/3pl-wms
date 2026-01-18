@@ -4,7 +4,7 @@
 
 -- Enable required extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-CREATE EXTENSION IF NOT EXISTS "postgis";
+
 
 -- ============================================================================
 -- Core Enums
@@ -26,7 +26,7 @@ CREATE TYPE storage_type AS ENUM ('standard', 'cold', 'frozen', 'hazmat', 'bonde
 -- ============================================================================
 
 CREATE TABLE tenants (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL,
     slug VARCHAR(100) UNIQUE NOT NULL,
     code VARCHAR(50) UNIQUE,
@@ -41,7 +41,7 @@ CREATE TABLE tenants (
 -- ============================================================================
 
 CREATE TABLE users (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     auth_id UUID UNIQUE,
     tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     email VARCHAR(255) NOT NULL,
@@ -62,7 +62,7 @@ CREATE TABLE users (
 -- ============================================================================
 
 CREATE TABLE warehouses (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     code VARCHAR(50) NOT NULL,
     name VARCHAR(255) NOT NULL,
@@ -80,7 +80,7 @@ CREATE TABLE warehouses (
 -- ============================================================================
 
 CREATE TABLE zones (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     warehouse_id UUID NOT NULL REFERENCES warehouses(id) ON DELETE CASCADE,
     code VARCHAR(50) NOT NULL,
     name VARCHAR(255) NOT NULL,
@@ -97,7 +97,7 @@ CREATE TABLE zones (
 -- ============================================================================
 
 CREATE TABLE locations (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     warehouse_id UUID NOT NULL REFERENCES warehouses(id) ON DELETE CASCADE,
     zone_id UUID REFERENCES zones(id) ON DELETE SET NULL,
     code VARCHAR(100) NOT NULL,
@@ -129,7 +129,7 @@ CREATE TABLE locations (
 -- ============================================================================
 
 CREATE TABLE customers (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     code VARCHAR(50) NOT NULL,
     name VARCHAR(255) NOT NULL,
@@ -149,7 +149,7 @@ CREATE TABLE customers (
 -- ============================================================================
 
 CREATE TABLE products (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     customer_id UUID REFERENCES customers(id) ON DELETE SET NULL,
     sku VARCHAR(100) NOT NULL,
@@ -185,7 +185,7 @@ CREATE TABLE products (
 -- ============================================================================
 
 CREATE TABLE inventory (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     warehouse_id UUID NOT NULL REFERENCES warehouses(id) ON DELETE CASCADE,
     location_id UUID NOT NULL REFERENCES locations(id) ON DELETE CASCADE,
@@ -217,7 +217,7 @@ CREATE INDEX idx_inventory_expiry ON inventory(expiry_date);
 -- ============================================================================
 
 CREATE TABLE inbound_orders (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     warehouse_id UUID NOT NULL REFERENCES warehouses(id) ON DELETE CASCADE,
     customer_id UUID REFERENCES customers(id) ON DELETE SET NULL,
@@ -240,7 +240,7 @@ CREATE TABLE inbound_orders (
 );
 
 CREATE TABLE inbound_order_lines (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     inbound_order_id UUID NOT NULL REFERENCES inbound_orders(id) ON DELETE CASCADE,
     order_id UUID REFERENCES inbound_orders(id) ON DELETE CASCADE,
     product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
@@ -259,7 +259,7 @@ CREATE TABLE inbound_order_lines (
 -- ============================================================================
 
 CREATE TABLE outbound_orders (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     warehouse_id UUID NOT NULL REFERENCES warehouses(id) ON DELETE CASCADE,
     customer_id UUID REFERENCES customers(id) ON DELETE SET NULL,
@@ -286,7 +286,7 @@ CREATE TABLE outbound_orders (
 );
 
 CREATE TABLE outbound_order_lines (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     outbound_order_id UUID NOT NULL REFERENCES outbound_orders(id) ON DELETE CASCADE,
     order_id UUID REFERENCES outbound_orders(id) ON DELETE CASCADE,
     product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
@@ -307,7 +307,7 @@ CREATE TABLE outbound_order_lines (
 -- ============================================================================
 
 CREATE TABLE waves (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     warehouse_id UUID NOT NULL REFERENCES warehouses(id) ON DELETE CASCADE,
     wave_number VARCHAR(50) NOT NULL,
     status VARCHAR(50) DEFAULT 'draft',
@@ -328,7 +328,7 @@ ALTER TABLE outbound_orders ADD CONSTRAINT fk_outbound_wave
 -- ============================================================================
 
 CREATE TABLE pick_tasks (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     warehouse_id UUID NOT NULL REFERENCES warehouses(id) ON DELETE CASCADE,
     order_id UUID NOT NULL REFERENCES outbound_orders(id) ON DELETE CASCADE,
@@ -356,7 +356,7 @@ CREATE TABLE pick_tasks (
 -- ============================================================================
 
 CREATE TABLE tasks (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     warehouse_id UUID NOT NULL REFERENCES warehouses(id) ON DELETE CASCADE,
     task_type VARCHAR(50) NOT NULL,
     status task_status DEFAULT 'pending',
@@ -380,7 +380,7 @@ CREATE TABLE tasks (
 -- ============================================================================
 
 CREATE TABLE inventory_movements (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     inventory_id UUID REFERENCES inventory(id) ON DELETE SET NULL,
     product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
@@ -400,7 +400,7 @@ CREATE TABLE inventory_movements (
 -- ============================================================================
 
 CREATE TABLE billing_contracts (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     customer_id UUID NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
     contract_number VARCHAR(50) NOT NULL,
@@ -420,7 +420,7 @@ CREATE TABLE billing_contracts (
 -- ============================================================================
 
 CREATE TABLE invoices (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     customer_id UUID NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
     contract_id UUID REFERENCES billing_contracts(id) ON DELETE SET NULL,
@@ -444,7 +444,7 @@ CREATE TABLE invoices (
 -- ============================================================================
 
 CREATE TABLE activity_logs (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     user_id UUID REFERENCES users(id) ON DELETE SET NULL,
     action VARCHAR(100) NOT NULL,
@@ -465,7 +465,7 @@ CREATE INDEX idx_activity_logs_created ON activity_logs(created_at DESC);
 -- ============================================================================
 
 CREATE TABLE ai_conversations (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     title VARCHAR(255),
@@ -476,7 +476,7 @@ CREATE TABLE ai_conversations (
 );
 
 CREATE TABLE ai_messages (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     conversation_id UUID NOT NULL REFERENCES ai_conversations(id) ON DELETE CASCADE,
     role VARCHAR(20) NOT NULL,
     content TEXT NOT NULL,
@@ -491,7 +491,7 @@ CREATE TABLE ai_messages (
 -- ============================================================================
 
 CREATE TABLE automation_rules (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     name VARCHAR(255) NOT NULL,
     description TEXT,
@@ -508,7 +508,7 @@ CREATE TABLE automation_rules (
 );
 
 CREATE TABLE automation_logs (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     rule_id UUID NOT NULL REFERENCES automation_rules(id) ON DELETE CASCADE,
     tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     trigger_data JSONB NOT NULL,
